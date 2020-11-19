@@ -2,6 +2,7 @@ package io.imwj.miaosha.controller;
 
 import io.imwj.miaosha.domain.User;
 import io.imwj.miaosha.redis.RedisService;
+import io.imwj.miaosha.redis.UserKey;
 import io.imwj.miaosha.result.CodeMsg;
 import io.imwj.miaosha.result.Result;
 import io.imwj.miaosha.service.UserService;
@@ -76,14 +77,14 @@ public class IndexController {
     @GetMapping("/setRedis")
     public Result<Boolean> setRedis() {
 
-        redisService.set("a", 1);
-        redisService.set("b", 2L);
-        redisService.set("c", "C");
+        redisService.set(UserKey.getById,"a", 1);
+        redisService.set(UserKey.getById,"b", 2L);
+        redisService.set(UserKey.getById,"c", "C");
 
         User user = new User();
         user.setId(001);
         user.setName("一号员工");
-        redisService.set("d", user);
+        redisService.set(UserKey.getById,"d", user);
 
         User user1 = new User();
         user1.setId(002);
@@ -91,7 +92,7 @@ public class IndexController {
         ArrayList<User> list = new ArrayList<>();
         list.add(user);
         list.add(user1);
-        redisService.set("e", list);
+        redisService.set(UserKey.getByIdEx(30),"e", list);
         return Result.success(true);
     }
 
@@ -99,18 +100,24 @@ public class IndexController {
     @GetMapping("/getRedis")
     public Result<Boolean> getRedis() {
 
-        Integer a = redisService.get("a", Integer.class);
+        Integer a = redisService.get(UserKey.getById, "a", Integer.class);
         log.info("a：" + a);
-        Long b = redisService.get("b", Long.class);
+        Long b = redisService.get(UserKey.getById,"b", Long.class);
         log.info("b：" + b);
-        String c = redisService.get("c", String.class);
+        String c = redisService.get(UserKey.getById,"c", String.class);
         log.info("c：" + c);
 
-        User user = redisService.get("d", User.class);
+        User user = redisService.get(UserKey.getById,"d", User.class);
         log.info("user：" + user);
 
-        List<User> list = redisService.get("e", List.class);
+        List<User> list = redisService.get(UserKey.getByIdEx(30),"e", List.class);
         log.info("list：" + list);
+
+        Long incr = redisService.incr(UserKey.getById, "f");
+        log.info("incr：" + incr);
+
+        Long dncr = redisService.dncr(UserKey.getById, "f");
+        log.info("dncr：" + dncr);
 
         return Result.success(true);
     }
