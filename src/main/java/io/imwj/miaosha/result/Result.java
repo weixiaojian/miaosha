@@ -16,7 +16,6 @@ public class Result<T> {
     private T data;
 
     public Result(T data) {
-        this.code = 200;
         this.msg = "success";
         this.data = data;
     }
@@ -36,6 +35,16 @@ public class Result<T> {
      */
     public static <T> Result<T> success(T data) {
         return new Result<T>(data);
+    }
+
+    /**
+     * 成功调用
+     * @param codeMsg
+     * @param <T>
+     * @return
+     */
+    public static <T> Result<T> success(CodeMsg codeMsg) {
+        return new Result<T>(codeMsg);
     }
 
     /**
