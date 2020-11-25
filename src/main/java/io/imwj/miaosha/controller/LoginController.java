@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -34,8 +35,8 @@ public class LoginController {
 
     @ResponseBody
     @PostMapping("/login")
-    public Result<String> login(@Valid LoginVo loginVo){
-        userService.login(loginVo);
+    public Result<String> login(HttpServletResponse response, @Valid LoginVo loginVo){
+        userService.login(response, loginVo);
         return Result.success(CodeMsg.SUCCESS);
     }
 }

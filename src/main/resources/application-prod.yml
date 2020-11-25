@@ -23,6 +23,8 @@ mybatis:
   type-aliases-package: io.imwj.miaosha.domain       # 所有Entity别名类所在包
   mapper-locations:
     - classpath:io/imwj/miaosha/dao/*.xml                       # mapper映射文件
+  configuration:
+    map-underscore-to-camel-case: true
 
 # 打印sql语句 io.imwj.springcloud是包名
 logging:
