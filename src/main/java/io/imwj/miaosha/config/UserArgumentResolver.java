@@ -1,8 +1,6 @@
 package io.imwj.miaosha.config;
 
 import io.imwj.miaosha.domain.MiaoShaUser;
-import io.imwj.miaosha.redis.MiaoShaUserKey;
-import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.service.MiaoShaUserService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +23,7 @@ import javax.servlet.http.HttpServletResponse;
 public class UserArgumentResolver implements HandlerMethodArgumentResolver {
 
     @Autowired
-    private RedisService redisService;
+    private MiaoShaUserService userService;
 
     /**
      * 先判断参数中的类型是不是MiaoShaUser 是的话再执行resolveArgument
@@ -41,7 +39,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = nativeWebRequest.getNativeRequest(HttpServletResponse.class);
+        HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
         String tokenParam = request.getParameter("token");
         String tokenCookie = getTokenCookie(request);
         String token = StringUtils.isNotEmpty(tokenParam)?tokenParam:tokenCookie;
@@ -49,7 +47,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
         if(StringUtils.isEmpty(tokenParam) && StringUtils.isEmpty(tokenCookie)) {
             return null;
         }
-        MiaoShaUser user = redisService.get(MiaoShaUserKey.TOKEN, token, MiaoShaUser.class);
+        MiaoShaUser user = userService.getByToken(response, token);
         return user;
     }
 

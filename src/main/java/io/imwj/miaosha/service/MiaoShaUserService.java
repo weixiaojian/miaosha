@@ -9,6 +9,7 @@ import io.imwj.miaosha.result.CodeMsg;
 import io.imwj.miaosha.util.MD5Util;
 import io.imwj.miaosha.util.UUIDUtil;
 import io.imwj.miaosha.vo.LoginVo;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -57,6 +58,26 @@ public class MiaoShaUserService {
         redisService.set(MiaoShaUserKey.TOKEN, token, dbUser);
         addCookie(response, COOKI_NAME_TOKEN, token);
         return true;
+    }
+
+    /**
+     * 根据token获取user用户，如果user不为空就要延迟redis和cookie中的有效期
+     * @param response
+     * @param token
+     * @return
+     */
+    public MiaoShaUser getByToken(HttpServletResponse response, String token){
+        if(StringUtils.isEmpty(token)){
+            return null;
+        }
+        MiaoShaUser user = redisService.get(MiaoShaUserKey.TOKEN, token, MiaoShaUser.class);
+        if(user != null){
+            //延长cookie中token的有效期
+            addCookie(response, COOKI_NAME_TOKEN, token);
+            //延长redis中token的有效期
+            redisService.set(MiaoShaUserKey.TOKEN, token, user);
+        }
+        return user;
     }
 
     private void addCookie(HttpServletResponse response, String name, String value){

@@ -1,8 +1,6 @@
 package io.imwj.miaosha.interceptor;
 
 import io.imwj.miaosha.domain.MiaoShaUser;
-import io.imwj.miaosha.redis.MiaoShaUserKey;
-import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.service.MiaoShaUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -25,7 +23,7 @@ import java.io.IOException;
 public class AuthInterceptor implements HandlerInterceptor {
 
     @Autowired
-    private RedisService redisService;
+    private MiaoShaUserService userService;
 
     @Override
     public boolean preHandle(HttpServletRequest req, HttpServletResponse res, Object handler) throws IOException {
@@ -43,7 +41,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
 
             //redis中的用户数据为空时跳转到登陆页面
-            MiaoShaUser user = redisService.get(MiaoShaUserKey.TOKEN, token, MiaoShaUser.class);
+            MiaoShaUser user = userService.getByToken(res, token);
             if(user == null) {
                 res.sendRedirect("/login/toLogin");
                 return false;
