@@ -51,7 +51,6 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         } catch (Exception e) {
             log.error("-----授权错误-----" + e.getMessage());
-            res.sendRedirect("/hello");
             return false;
         }
     }

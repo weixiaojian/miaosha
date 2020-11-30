@@ -30,8 +30,7 @@ public class GoodsService {
      * @param id
      * @return
      */
-    public GoodsVo getGoodsVoById(String id) {
+    public GoodsVo getGoodsVoByGoodsId(String id) {
         return goodsMapper.getGoodVoById(id);
     }
-
 }
