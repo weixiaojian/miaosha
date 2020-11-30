@@ -1,6 +1,7 @@
 package io.imwj.miaosha.service;
 
 import io.imwj.miaosha.dao.GoodsMapper;
+import io.imwj.miaosha.domain.MiaoshaGoods;
 import io.imwj.miaosha.vo.GoodsVo;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -32,5 +33,15 @@ public class GoodsService {
      */
     public GoodsVo getGoodsVoByGoodsId(String id) {
         return goodsMapper.getGoodVoById(id);
+    }
+
+    /**
+     * 减少秒杀商品表中的库存
+     * @param goods
+     */
+    public void reduceStock(GoodsVo goods) {
+        MiaoshaGoods g = new MiaoshaGoods();
+        g.setId(goods.getId());
+        goodsMapper.reduceStock(g);
     }
 }

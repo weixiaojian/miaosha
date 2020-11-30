@@ -37,6 +37,12 @@ public class CodeMsg {
     /*=======================登陆失败状态结束======================*/
 
     /**
+     * 秒杀异常
+     */
+    public static CodeMsg MIAO_SHA_OVER = new CodeMsg(500500, "商品已经秒杀完毕");
+    public static CodeMsg REPEATE_MIAOSHA = new CodeMsg(500501, "不能重复秒杀");
+
+    /**
      * 参数校验异常处理
      * @param args
      * @return
