@@ -13,9 +13,9 @@ spring:
     cache: false #关闭缓存，便于调试
 
   datasource:
-    url: jdbc:mysql://127.0.0.1:3399/miaosha?characterEncoding=UTF-8
+    url: jdbc:mysql://127.0.0.1:3306/miaosha?characterEncoding=UTF-8
     username: root
-    password: java123
+    password: 123456
     driver-class-name: com.mysql.jdbc.Driver
     tomcat:
       max-active: 1000

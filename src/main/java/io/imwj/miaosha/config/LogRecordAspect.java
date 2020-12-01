@@ -12,7 +12,6 @@ import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
 import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
 
 /**
  * @author langao_q
@@ -39,7 +38,6 @@ public class LogRecordAspect {
         String method = request.getMethod();
         String uri = request.getRequestURI();
         String paraString = JSON.toJSONString(request.getParameterMap());
-        log.info("-------------------------" + LocalDateTime.now() + "-----------------------------");
         log.info("【请求开始】URI: {}, method: {}, params: {}", uri, method, paraString);
 
         long begin = System.nanoTime();
@@ -47,7 +45,6 @@ public class LogRecordAspect {
         long end = System.nanoTime();
 
         log.info("【请求结束】controller的返回值是 " + JSON.toJSONString(result));
-        log.info("-----------------------------" + (end - begin) / 1000000 + "毫秒--------------------------------------\n");
         return result;
     }
 }
