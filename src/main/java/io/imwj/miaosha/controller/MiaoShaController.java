@@ -32,6 +32,18 @@ public class MiaoShaController {
     private OrderService orderService;
 
 
+    /**
+     *  QPS：56.7
+     *  5000线程/1次
+     *
+     *  QPS：522
+     *  5000线程/10次
+     * 商品秒杀
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
     @RequestMapping("do_miaosha")
     public String doMiaoSha(Model model,
                             MiaoShaUser user,

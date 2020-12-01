@@ -37,7 +37,7 @@ public class MiaoShaUserService {
      * @param loginVo
      * @return
      */
-    public boolean login(HttpServletResponse response, LoginVo loginVo) {
+    public String login(HttpServletResponse response, LoginVo loginVo) {
         //得到数据库中的用户信息
         MiaoShaUser dbUser = userMapper.getUserById(loginVo.getMobile());
 
@@ -57,7 +57,7 @@ public class MiaoShaUserService {
         String token = UUIDUtil.uuid();
         redisService.set(MiaoShaUserKey.TOKEN, token, dbUser);
         addCookie(response, COOKI_NAME_TOKEN, token);
-        return true;
+        return token;
     }
 
     /**

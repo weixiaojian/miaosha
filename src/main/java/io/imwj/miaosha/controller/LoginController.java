@@ -1,6 +1,5 @@
 package io.imwj.miaosha.controller;
 
-import io.imwj.miaosha.result.CodeMsg;
 import io.imwj.miaosha.result.Result;
 import io.imwj.miaosha.service.MiaoShaUserService;
 import io.imwj.miaosha.vo.LoginVo;
@@ -36,7 +35,7 @@ public class LoginController {
     @ResponseBody
     @PostMapping("/login")
     public Result<String> login(HttpServletResponse response, @Valid LoginVo loginVo){
-        userService.login(response, loginVo);
-        return Result.success(CodeMsg.SUCCESS);
+        String token =  userService.login(response, loginVo);
+        return Result.success(token);
     }
 }

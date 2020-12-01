@@ -11,7 +11,7 @@ import org.apache.commons.codec.digest.DigestUtils;
 @Slf4j
 public class MD5Util {
 
-    private static final String salt = "1a2b3c4d5e";
+    private static final String salt = "1a2b3c";
 
 
     /**
@@ -61,14 +61,7 @@ public class MD5Util {
 
 
     public static void main(String[] args) {
-        String dbPass = inputPassToDbPass("123123", salt);
+        String dbPass = inputPassToDbPass("123456", salt);
         log.info(dbPass);
-
-        String test1 = inputPassToFormPass("123123");
-        log.info(test1);
-
-
-        String test2 = formPassToDbPass("ae8563c3137e3b754bd1fefd4a33f2c0", "1a2b3c4d5e");
-        log.info(test2);
     }
 }

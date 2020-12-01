@@ -28,8 +28,9 @@ public class GoodController {
     private GoodsService goodsService;
 
     /**
+     *  QPS：506
+     *  5000线程/10次
      * 商品列表页
-     *
      * @param model
      * @param user
      * @return
