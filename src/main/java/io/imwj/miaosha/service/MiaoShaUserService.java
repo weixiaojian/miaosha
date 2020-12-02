@@ -1,6 +1,6 @@
 package io.imwj.miaosha.service;
 
-import io.imwj.miaosha.dao.MiaoShaMapper;
+import io.imwj.miaosha.dao.MiaoShaUserMapper;
 import io.imwj.miaosha.domain.MiaoShaUser;
 import io.imwj.miaosha.exception.GlobalException;
 import io.imwj.miaosha.redis.MiaoShaUserKey;
@@ -30,7 +30,7 @@ public class MiaoShaUserService {
     private RedisService redisService;
 
     @Autowired
-    private MiaoShaMapper userMapper;
+    private MiaoShaUserMapper userMapper;
 
     /**
      * 用户登陆方法

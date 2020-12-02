@@ -10,7 +10,7 @@ import org.apache.ibatis.annotations.Select;
  * @since 2020-11-24 17:06
  */
 @Mapper
-public interface MiaoShaMapper {
+public interface MiaoShaUserMapper {
 
     @Select("SELECT * FROM miaosha_user WHERE id = #{id}")
     public MiaoShaUser getUserById(@Param("id") String id);

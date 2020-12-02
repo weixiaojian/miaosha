@@ -439,3 +439,39 @@ public class MiaoshaApplication extends SpringBootServletInitializer {
     }
 }
 ```
+
+## 第五章-页面级优化
+* 页面缓存 + URL缓存 + 对象缓存  
+页面缓存：不使用springboot的页面渲染，改成手动渲染 同时将页面数据缓存到redis  
+URL缓存：根据传入的id不同，将数据缓存到redis中  
+对象缓存：直接将用户数据放入redis中 不需要每次到数据库中取  
+
+* 页面静态化，前后端分离  
+页面静态化：常见的如JSP、thymeleaf等都属于动态页面，将其修改成普通的html，只有页面与页面间的跳转 通过ajax获取数据然后渲染到页面  
+前后端分离：通过ajax获取数据然后渲染到页面  
+同时springboot配置spring.resources.*，将页面缓存到浏览器
+```
+spring.resources.add-mappings=true 
+spring.resources.cache-period=3600  #缓存时间 s
+spring.resources.chain.cache=true 
+spring.resources.chain.enabled=true
+spring.resources.chain.gzipped=true
+spring.resources.chain.html-application-cache=true
+spring.resources.static-locations=classpath:/static/    #缓存页面的根目录（要放到static下）
+```
+
+* 静态资源优化  
+js/css压缩、多个js/css组合连接(减少连接数)、[http://tengine.taobao.org/](http://tengine.taobao.org/)
+
+
+* CDN优化  
+通过中心平台的负载均衡、内容分发、调度等功能模块，使用户就近获取所需内容，降低网络拥塞，提高用户访问响应速度和命中率。
+
+* 库存超卖
+更新库存的时候在sql中判断库存大于0（使用mysql自带的锁）
+```
+update miaosha_goods set stock_count = stock_count - 1 where goods_id = #{goodsId} and stock_count > 0
+```
+
+* 一个用户秒杀到两个商品  
+在秒杀订单表建立一个唯一索引：userId、orderId
