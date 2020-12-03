@@ -3,7 +3,9 @@ package io.imwj.miaosha.controller;
 import io.imwj.miaosha.domain.MiaoShaUser;
 import io.imwj.miaosha.redis.GoodrKey;
 import io.imwj.miaosha.redis.RedisService;
+import io.imwj.miaosha.result.Result;
 import io.imwj.miaosha.service.GoodsService;
+import io.imwj.miaosha.vo.GoodsDetailVo;
 import io.imwj.miaosha.vo.GoodsVo;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -140,7 +142,7 @@ public class GoodController {
 
     /**
      * 商品详情页面2
-     *
+     * redis页面缓存
      * @param model
      * @param user
      * @param goodsId
@@ -192,6 +194,47 @@ public class GoodController {
             redisService.set(GoodrKey.getGoodsById, goodsId, html);
         }
         return html;
+    }
+
+    /**
+     * 商品详情页面3
+     * 页面静态化
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("/detail3/{goodsId}")
+    public Result<GoodsDetailVo> detail3(MiaoShaUser user,
+                                         @PathVariable("goodsId") String goodsId) {
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(goodsId);
+        long startAt = goods.getStartDate().getTime();
+        long endAt = goods.getEndDate().getTime();
+        long now = System.currentTimeMillis();
+
+        int miaoshaStatus = 0;
+        int remainSeconds = 0;
+        //秒杀还没开始，倒计时
+        if (now < startAt) {
+            miaoshaStatus = 0;
+            remainSeconds = (int) ((startAt - now) / 1000);
+        }
+        //秒杀已经结束
+        else if (now > endAt) {
+            miaoshaStatus = 2;
+            remainSeconds = -1;
+        }
+        //秒杀进行中
+        else {
+            miaoshaStatus = 1;
+            remainSeconds = 0;
+        }
+        GoodsDetailVo detailVo = new GoodsDetailVo();
+        detailVo.setMiaoshaStatus(miaoshaStatus);
+        detailVo.setRemainSeconds(remainSeconds);
+        detailVo.setUser(user);
+        detailVo.setGoods(goods);
+        return Result.success(detailVo);
     }
 
 

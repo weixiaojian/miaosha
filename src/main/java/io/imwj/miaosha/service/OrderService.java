@@ -62,4 +62,13 @@ public class OrderService {
         orderMapper.insertMiaoshaOrder(order);
         return info;
     }
+
+    /**
+     * 根据id查询订单
+     * @param orderId
+     * @return
+     */
+    public OrderInfo getOrderById(long orderId){
+        return orderMapper.getOrderById(orderId);
+    }
 }

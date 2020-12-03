@@ -37,6 +37,11 @@ public class CodeMsg {
     /*=======================登陆失败状态结束======================*/
 
     /**
+     * 订单模块 5004XX
+     */
+    public static CodeMsg ORDER_NOT_EXIST = new CodeMsg(500400, "订单不存在");
+
+    /**
      * 秒杀异常
      */
     public static CodeMsg MIAO_SHA_OVER = new CodeMsg(500500, "商品已经秒杀完毕");

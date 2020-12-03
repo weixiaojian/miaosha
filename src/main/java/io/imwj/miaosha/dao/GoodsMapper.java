@@ -35,6 +35,6 @@ public interface GoodsMapper {
      * 减少秒杀商品库存
      * @param g
      */
-    @Update("update miaosha_goods set stock_count = stock_count - 1 where goods_id = #{goodsId}")
+    @Update("update miaosha_goods set stock_count = stock_count - 1 where goods_id = #{goodsId} and stock_count > 0")
     void reduceStock(MiaoshaGoods g);
 }
