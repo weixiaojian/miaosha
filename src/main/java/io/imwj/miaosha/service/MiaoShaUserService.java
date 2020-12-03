@@ -39,7 +39,7 @@ public class MiaoShaUserService {
      */
     public String login(HttpServletResponse response, LoginVo loginVo) {
         //得到数据库中的用户信息
-        MiaoShaUser dbUser = userMapper.getUserById(loginVo.getMobile());
+        MiaoShaUser dbUser = getById(loginVo.getMobile());
 
         //验证用户是否存在
         if(dbUser == null){
@@ -78,6 +78,48 @@ public class MiaoShaUserService {
             redisService.set(MiaoShaUserKey.TOKEN, token, user);
         }
         return user;
+    }
+
+    /**
+     * 根据id获取用户信息
+     * @param id
+     * @return
+     */
+    private MiaoShaUser getById(String id) {
+        MiaoShaUser user = redisService.get(MiaoShaUserKey.getById, id, MiaoShaUser.class);
+        if (user != null) {
+            return user;
+        }
+        user = userMapper.getUserById(id);
+        if (user != null) {
+            redisService.set(MiaoShaUserKey.getById, id, user);
+        }
+        return user;
+    }
+
+    /**
+     * 更新用户密码
+     * @param token
+     * @param id
+     * @param formPass
+     * @return
+     */
+    public boolean updatePassword(String token, String id, String formPass){
+        MiaoShaUser user = getById(id);
+        if(user == null){
+            throw new GlobalException(CodeMsg.MOBILE_NOT_EXIST);
+        }
+        //更新数据库
+        MiaoShaUser toBeUpdate = new MiaoShaUser();
+        String dbPass = MD5Util.formPassToDbPass(formPass, user.getSalt());
+        toBeUpdate.setId(user.getId());
+        toBeUpdate.setPassword(dbPass);
+        userMapper.update(toBeUpdate);
+        //处理缓存：先清空缓存 然后重新存入
+        redisService.delete(MiaoShaUserKey.TOKEN, id);
+        user.setPassword(toBeUpdate.getPassword());
+        redisService.set(MiaoShaUserKey.TOKEN, token, user);
+        return true;
     }
 
     private void addCookie(HttpServletResponse response, String name, String value){

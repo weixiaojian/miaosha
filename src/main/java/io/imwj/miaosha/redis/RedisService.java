@@ -64,6 +64,25 @@ public class RedisService {
         }
     }
 
+
+    /**
+     * 清空指定缓存
+     * @param prefix
+     * @param key
+     */
+    public boolean delete(KeyPrefix prefix, String key) {
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            //获取真正的key
+            String realKey = prefix.getPrefix() + key;
+            jedis.del(realKey);
+            return true;
+        } finally {
+            returnToPool(jedis);
+        }
+    }
+
     /**
      * 判断key是否存在
      * @param prefix
@@ -173,5 +192,4 @@ public class RedisService {
             jedis.close();
         }
     }
-
 }
