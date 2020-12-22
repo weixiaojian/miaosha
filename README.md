@@ -475,3 +475,11 @@ update miaosha_goods set stock_count = stock_count - 1 where goods_id = #{goodsI
 
 * 一个用户秒杀到两个商品  
 在秒杀订单表建立一个唯一索引：userId、orderId
+
+## 第六章-服务级高并发秒杀优化（RabbitMQ+接口优化）
+### 思路：减少数据库访问
+* 系统初始化，把商品库存加载到redis中
+* 收到请求，redis预减库存 若库存不足直接返回
+* 请求入队rabbitMQ，立即返回排队中
+* 请求出队，生成订单 减少库存
+* 客户端轮询，是否秒杀成功
