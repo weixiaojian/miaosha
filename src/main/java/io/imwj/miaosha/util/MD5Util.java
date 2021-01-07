@@ -61,7 +61,7 @@ public class MD5Util {
 
 
     public static void main(String[] args) {
-        String dbPass = inputPassToDbPass("123456", salt);
+        String dbPass = inputPassToDbPass("123123", salt);
         log.info(dbPass);
     }
 }
