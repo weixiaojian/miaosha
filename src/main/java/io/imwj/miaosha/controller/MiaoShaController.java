@@ -35,11 +35,11 @@ public class MiaoShaController {
 
 
     /**
-     *  QPS：56.7
-     *  5000线程/1次
+     *  QPS：67.8
+     *  5000个商品    5000线程/1次
      *
-     *  QPS：522
-     *  5000线程/10次
+     *  QPS：60 - 600（商品库存秒杀完之后 qps开始上升）
+     *  5000个商品    5000线程/10次
      * 商品秒杀
      * @param model
      * @param user
@@ -100,7 +100,7 @@ public class MiaoShaController {
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
 
-        //3.判断是否已经秒杀到了
+        //3.判断是否已经秒杀过了
         MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), goodsId);
         if(order != null){
             return Result.error(CodeMsg.REPEATE_MIAOSHA);

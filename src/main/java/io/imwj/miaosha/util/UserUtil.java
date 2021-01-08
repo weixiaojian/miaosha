@@ -20,14 +20,14 @@ public class UserUtil {
     private static void createUser(int count) throws Exception{
         List<MiaoShaUser> users = new ArrayList<MiaoShaUser>(count);
         //生成用户
-        for(int i=0;i<count;i++) {
+        for(int i=1;i<=count;i++) {
             MiaoShaUser user = new MiaoShaUser();
             user.setId(13000000000L+i);
             user.setLoginCount(1);
             user.setNickname("user"+i);
             user.setRegisterDate(new Date());
             user.setSalt("1a2b3c");
-            user.setPassword(MD5Util.inputPassToDbPass("123456", user.getSalt()));
+            user.setPassword(MD5Util.inputPassToDbPass("123123", user.getSalt()));
             users.add(user);
         }
         System.out.println("create user");
@@ -47,7 +47,7 @@ public class UserUtil {
             co.setRequestMethod("POST");
             co.setDoOutput(true);
             OutputStream out = co.getOutputStream();
-            String params = "mobile="+user.getId()+"&password="+MD5Util.inputPassToFormPass("123456");
+            String params = "mobile="+user.getId()+"&password="+MD5Util.inputPassToFormPass("123123");
             out.write(params.getBytes());
             out.flush();
             InputStream inputStream = co.getInputStream();

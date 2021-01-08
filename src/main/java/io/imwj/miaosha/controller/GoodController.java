@@ -49,7 +49,7 @@ public class GoodController {
     ApplicationContext applicationContext;
 
     /**
-     *  QPS：506
+     *  QPS：386
      *  5000线程/10次
      * 商品列表页
      * @param model
@@ -111,9 +111,9 @@ public class GoodController {
 
 
     /**
-     *  QPS：1174
+     *  QPS：386
      *  5000线程/10次
-     * 订单列表2：使用redis缓存页面
+     * 商品列表页2：使用redis缓存页面
      * @param model
      * @param user
      * @return
