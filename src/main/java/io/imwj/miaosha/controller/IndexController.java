@@ -1,6 +1,7 @@
 package io.imwj.miaosha.controller;
 
 import io.imwj.miaosha.domain.User;
+import io.imwj.miaosha.rabbitmq.MQSender;
 import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.redis.UserKey;
 import io.imwj.miaosha.result.CodeMsg;
@@ -30,6 +31,9 @@ public class IndexController {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private MQSender mqSender;
 
     @ResponseBody
     @GetMapping("/hello")
@@ -120,6 +124,15 @@ public class IndexController {
         log.info("dncr：" + dncr);
 
         return Result.success(true);
+    }
+
+    @ResponseBody
+    @GetMapping("/sendMsg")
+    public Result<String> sendMsg(){
+        String msg = "hello rabbitMQ";
+        mqSender.send(msg);
+
+        return Result.success(msg);
     }
 
 

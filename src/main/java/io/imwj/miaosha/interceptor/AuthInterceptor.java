@@ -1,6 +1,8 @@
 package io.imwj.miaosha.interceptor;
 
 import io.imwj.miaosha.domain.MiaoShaUser;
+import io.imwj.miaosha.exception.GlobalException;
+import io.imwj.miaosha.result.CodeMsg;
 import io.imwj.miaosha.service.MiaoShaUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,8 +52,8 @@ public class AuthInterceptor implements HandlerInterceptor {
             //放行
             return true;
         } catch (Exception e) {
-            log.error("-----授权错误-----" + e.getMessage());
-            return false;
+            log.error("-----登陆拦截器错误-----" + e.getMessage());
+            throw new GlobalException(CodeMsg.ERROR);
         }
     }
 
