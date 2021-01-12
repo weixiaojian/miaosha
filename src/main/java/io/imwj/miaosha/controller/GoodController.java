@@ -1,7 +1,7 @@
 package io.imwj.miaosha.controller;
 
 import io.imwj.miaosha.domain.MiaoShaUser;
-import io.imwj.miaosha.redis.GoodrKey;
+import io.imwj.miaosha.redis.GoodsKey;
 import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.result.Result;
 import io.imwj.miaosha.service.GoodsService;
@@ -123,7 +123,7 @@ public class GoodController {
     public String toList2(HttpServletRequest request, HttpServletResponse response, Model model, MiaoShaUser user) {
         model.addAttribute("user", user);
         //取缓存
-        String html = redisService.get(GoodrKey.getGoodsList, "", String.class);
+        String html = redisService.get(GoodsKey.getGoodsList, "", String.class);
         if(!StringUtils.isEmpty(html)){
             return html;
         }
@@ -135,7 +135,7 @@ public class GoodController {
         //手动渲染
         html = thymeleafViewResolver.getTemplateEngine().process("goods_list", ctx);
         if(!StringUtils.isEmpty(html)){
-            redisService.set(GoodrKey.getGoodsList, "", html);
+            redisService.set(GoodsKey.getGoodsList, "", html);
         }
         return html;
     }
@@ -154,7 +154,7 @@ public class GoodController {
                          @PathVariable("goodsId") String goodsId) {
         model.addAttribute("user", user);
         //取缓存
-        String html = redisService.get(GoodrKey.getGoodsById, goodsId, String.class);
+        String html = redisService.get(GoodsKey.getGoodsById, goodsId, String.class);
         if(!StringUtils.isEmpty(html)){
             return html;
         }
@@ -191,7 +191,7 @@ public class GoodController {
         //手动渲染
         html = thymeleafViewResolver.getTemplateEngine().process("goods_detail", ctx);
         if(!StringUtils.isEmpty(html)){
-            redisService.set(GoodrKey.getGoodsById, goodsId, html);
+            redisService.set(GoodsKey.getGoodsById, goodsId, html);
         }
         return html;
     }

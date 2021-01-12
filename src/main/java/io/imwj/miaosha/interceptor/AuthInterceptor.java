@@ -53,7 +53,7 @@ public class AuthInterceptor implements HandlerInterceptor {
             return true;
         } catch (Exception e) {
             log.error("-----登陆拦截器错误-----" + e.getMessage());
-            throw new GlobalException(CodeMsg.ERROR);
+            throw new GlobalException(CodeMsg.SYS_ERROR.systemErro(e));
         }
     }
 

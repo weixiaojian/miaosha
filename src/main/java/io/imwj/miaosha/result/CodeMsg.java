@@ -23,8 +23,13 @@ public class CodeMsg {
      * 失败标识
      */
     public static CodeMsg ERROR = new CodeMsg(500, "服务端异常！");
-
-    //参数校验异常处理
+    /**
+     * 手动系统异常处理
+     */
+    public static CodeMsg SYS_ERROR = new CodeMsg(50001, "服务端异常：%s");
+    /**
+     * 参数校验异常处理
+     */
     public static CodeMsg BIND_ERROR = new CodeMsg(500101, "参数校验异常：%s");
 
     /*=======================登陆失败状态开始======================*/
@@ -53,6 +58,17 @@ public class CodeMsg {
      * @return
      */
     public CodeMsg fillArgs(Object... args) {
+        int code = this.code;
+        String message = String.format(this.msg, args);
+        return new CodeMsg(code, message);
+    }
+
+    /**
+     * 系统异常处理
+     * @param args
+     * @return
+     */
+    public CodeMsg systemErro(Object... args){
         int code = this.code;
         String message = String.format(this.msg, args);
         return new CodeMsg(code, message);

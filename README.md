@@ -525,15 +525,15 @@ spring
 @Configuration
 public class MQConfig {
 
-    public static final String QUEUE_DIRECT = "QUEUE_DIRECT";
+    public static final String DIRECT_QUEUE = "DIRECT_QUEUE";
 
     /**
-     * 注入交换机
+     * 注入队列
      * @return
      */
     @Bean
     public Queue queue(){
-        return new Queue(QUEUE_DIRECT, true);
+        return new Queue(DIRECT_QUEUE, true);
     }
 }
 ```
@@ -553,7 +553,7 @@ public class MQSender {
      */
     public void send(Object msg) {
         String msgStr = JsonUtil.beanToString(msg);
-        amqpTemplate.convertAndSend(MQConfig.QUEUE_DIRECT, msgStr);
+        amqpTemplate.convertAndSend(MQConfig.DIRECT_QUEUE, msgStr);
         log.info("MQSender.send:" + msgStr);
     }
 }
@@ -565,7 +565,7 @@ public class MQSender {
 @Service
 public class MQReceiver {
 
-    @RabbitListener(queues = MQConfig.QUEUE_DIRECT)
+    @RabbitListener(queues = MQConfig.DIRECT_QUEUE)
     public void receive(String msg){
         log.info("MQReceiver.receive" + msg);
     }

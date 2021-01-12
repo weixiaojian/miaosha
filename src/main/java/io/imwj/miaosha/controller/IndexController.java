@@ -130,7 +130,9 @@ public class IndexController {
     @GetMapping("/sendMsg")
     public Result<String> sendMsg(){
         String msg = "hello rabbitMQ";
-        mqSender.send(msg);
+        //mqSender.send(msg);
+        //mqSender.sendTopic(msg);
+        mqSender.sendFanout(msg);
 
         return Result.success(msg);
     }
