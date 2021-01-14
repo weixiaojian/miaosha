@@ -69,7 +69,7 @@ public class OrderService {
         orderMapper.insertMiaoshaOrder(order);
 
         //3.把秒杀记录写入redis
-        redisService.set(OrderKey.getMiaoshaOrderByUidGid, user.getId()+"_"+info.getId(), order);
+        redisService.set(OrderKey.getMiaoshaOrderByUidGid, user.getId()+"_"+goods.getId(), order);
         return info;
     }
 

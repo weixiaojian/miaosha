@@ -63,7 +63,7 @@ public class MiaoShaService {
         MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(userId, goodsId + "");
         //秒杀成功
         if(order != null) {
-            return 0;
+            return order.getOrderId();
         }else {
             boolean isOver = getGoodsOver(goodsId);
             if(isOver) {

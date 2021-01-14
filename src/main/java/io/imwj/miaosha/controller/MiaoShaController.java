@@ -3,6 +3,8 @@ package io.imwj.miaosha.controller;
 import io.imwj.miaosha.domain.MiaoShaUser;
 import io.imwj.miaosha.domain.MiaoshaOrder;
 import io.imwj.miaosha.domain.OrderInfo;
+import io.imwj.miaosha.rabbitmq.MQSender;
+import io.imwj.miaosha.rabbitmq.MiaoshaMessage;
 import io.imwj.miaosha.redis.GoodsKey;
 import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.result.CodeMsg;
@@ -43,6 +45,9 @@ public class MiaoShaController implements InitializingBean {
 
     @Autowired
     private RedisService redisService;
+
+    @Autowired
+    private MQSender mqSender;
 
     /**
      * 标记秒杀已经结束
@@ -107,7 +112,7 @@ public class MiaoShaController implements InitializingBean {
      * @return
      */
     @ResponseBody
-    @RequestMapping("doMiaoSha2")
+    @RequestMapping("do_miaosha2")
     public Result<Integer> doMiaoSha2(Model model,
                              MiaoShaUser user,
                              String goodsId){
@@ -115,13 +120,13 @@ public class MiaoShaController implements InitializingBean {
         //1.判断用户是否登陆（拦截器AuthInterceptor已经处理）
 
         //2.校验库存是否充足（先使用内存标记 减少redis访问）
-        Boolean put = localOverMap.get(goodsId + "");
+        Boolean put = localOverMap.get(goodsId);
         if(put){
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
         Long stockCount = redisService.dncr(GoodsKey.getMiaoshaGoodsStock, goodsId);
-        if(stockCount <= 0){
-            localOverMap.put(goodsId, false);
+        if(stockCount < 0){
+            localOverMap.put(goodsId, true);
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
 
@@ -132,6 +137,10 @@ public class MiaoShaController implements InitializingBean {
         }
 
         //4.请求入队rabbitMQ（0：排队中）
+        MiaoshaMessage msg = new MiaoshaMessage();
+        msg.setUser(user);
+        msg.setGoodsId(Long.parseLong(goodsId));
+        mqSender.miaoShaSend(msg);
         return Result.success(0);
     }
 
@@ -148,6 +157,7 @@ public class MiaoShaController implements InitializingBean {
         }
         for (GoodsVo good : goodsVos){
             redisService.set(GoodsKey.getMiaoshaGoodsStock, good.getId() + "", good.getStockCount());
+            localOverMap.put(good.getId() + "", false);
         }
     }
 
