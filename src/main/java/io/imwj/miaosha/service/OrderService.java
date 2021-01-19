@@ -81,4 +81,12 @@ public class OrderService {
     public OrderInfo getOrderById(long orderId){
         return orderMapper.getOrderById(orderId);
     }
+
+    /**
+     * 清空所有订单
+     */
+    public void deleteOrders() {
+        orderMapper.deleteOrders();
+        orderMapper.deleteMiaoshaOrders();
+    }
 }

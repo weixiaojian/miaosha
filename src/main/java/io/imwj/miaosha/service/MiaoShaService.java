@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+
 /**
  * 秒杀Service
  * @author langao_q
@@ -82,4 +84,13 @@ public class MiaoShaService {
         return redisService.exists(MiaoshaKey.isGoodsOver, ""+goodsId);
     }
 
+    /**
+     * 1.重置mysql中的商品库存
+     * 2。清楚订单记录
+     * @param goodsList
+     */
+    public void reset(List<GoodsVo> goodsList) {
+        goodsService.resetStock(goodsList);
+        orderService.deleteOrders();
+    }
 }

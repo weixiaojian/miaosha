@@ -6,6 +6,8 @@ import io.imwj.miaosha.domain.OrderInfo;
 import io.imwj.miaosha.rabbitmq.MQSender;
 import io.imwj.miaosha.rabbitmq.MiaoshaMessage;
 import io.imwj.miaosha.redis.GoodsKey;
+import io.imwj.miaosha.redis.MiaoshaKey;
+import io.imwj.miaosha.redis.OrderKey;
 import io.imwj.miaosha.redis.RedisService;
 import io.imwj.miaosha.result.CodeMsg;
 import io.imwj.miaosha.result.Result;
@@ -100,6 +102,11 @@ public class MiaoShaController implements InitializingBean {
     }
 
     /**
+     *  QPS：934.6
+     *  5000个商品    5000线程/1次
+     *
+     *  QPS：700 - 1500（商品库存秒杀完之后 qps开始上升）
+     *  5000个商品    5000线程/10次
      * 【秒杀优化】：
      * 1.系统初始化，把商品库存加载到redis中
      * 2.收到请求，redis预减库存 若库存不足直接返回
@@ -179,5 +186,27 @@ public class MiaoShaController implements InitializingBean {
         }
         long result  = miaoShaService.getMiaoshaResult(user.getId(), goodsId);
         return Result.success(result);
+    }
+
+    /**
+     * 重置秒杀数据
+     * 1.重置商品库存（mysql中和redis中）
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/reset", method=RequestMethod.GET)
+    @ResponseBody
+    public Result<Boolean> reset(Model model, MiaoShaUser user) {
+        List<GoodsVo> goodsList = goodsService.listGoodsVo();
+        for(GoodsVo goods : goodsList) {
+            goods.setStockCount(5000);
+            redisService.set(GoodsKey.getMiaoshaGoodsStock, ""+goods.getId(), 5000);
+            localOverMap.put(goods.getId() + "", false);
+
+            redisService.delete(OrderKey.getMiaoshaOrderByUidGid);
+            redisService.delete(MiaoshaKey.isGoodsOver );
+        }
+        miaoShaService.reset(goodsList);
+        return Result.success(true);
     }
 }
