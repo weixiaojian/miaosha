@@ -119,9 +119,9 @@ public class MiaoShaController implements InitializingBean {
         model.addAttribute("user", user);
         //1.判断用户是否登陆（拦截器AuthInterceptor已经处理）
 
-        //2.校验库存是否充足（先使用内存标记 减少redis访问）
-        Boolean put = localOverMap.get(goodsId);
-        if(put){
+        //2.校验库存是否充足（先使用内存标记 减少redis访问 同时避免redis库存出现负数）
+        boolean over = localOverMap.get(goodsId);
+        if(over){
             return Result.error(CodeMsg.MIAO_SHA_OVER);
         }
         Long stockCount = redisService.dncr(GoodsKey.getMiaoshaGoodsStock, goodsId);
