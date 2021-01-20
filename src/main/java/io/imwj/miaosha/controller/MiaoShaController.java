@@ -24,8 +24,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * 秒杀控制类
@@ -54,7 +54,7 @@ public class MiaoShaController implements InitializingBean {
     /**
      * 标记秒杀已经结束
      */
-    private HashMap<String, Boolean> localOverMap =  new HashMap<String, Boolean>();
+    private ConcurrentHashMap<String, Boolean> localOverMap =  new ConcurrentHashMap<String, Boolean>();
 
 
     /**

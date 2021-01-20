@@ -571,3 +571,136 @@ public class MQReceiver {
     }
 }
 ```
+
+### 秒杀接口优化
+0.系统初始化把库存加载到redis中（实现InitializingBean）
+```
+public class MiaoShaController implements InitializingBean {
+        /**
+         * 系统初始化：
+         * 把商品库存都加载到redis中去
+         * @throws Exception
+         */
+        @Override
+        public void afterPropertiesSet() throws Exception {
+            List<GoodsVo> goodsVos = goodsService.listGoodsVo();
+            if(goodsVos == null){
+                return ;
+            }
+            for (GoodsVo good : goodsVos){
+                redisService.set(GoodsKey.getMiaoshaGoodsStock, good.getId() + "", good.getStockCount());
+                localOverMap.put(good.getId() + "", false);
+            }
+        }
+}
+```
+
+1.controller秒杀接口
+```
+    @Autowired
+    private MQSender mqSender;
+
+    /**
+     *  QPS：934.6
+     *  5000个商品    5000线程/1次
+     *
+     *  QPS：700 - 1500（商品库存秒杀完之后 qps开始上升）
+     *  5000个商品    5000线程/10次
+     * 【秒杀优化】：
+     * 1.系统初始化，把商品库存加载到redis中
+     * 2.收到请求，redis预减库存 若库存不足直接返回
+     * 3.请求入队rabbitMQ，立即返回排队中
+     * 4.请求出队，生成订单 减少库存
+     * 5.客户端轮询，是否秒杀成功
+     * @param model
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @ResponseBody
+    @RequestMapping("do_miaosha2")
+    public Result<Integer> doMiaoSha2(Model model,
+                             MiaoShaUser user,
+                             String goodsId){
+        model.addAttribute("user", user);
+        //1.判断用户是否登陆（拦截器AuthInterceptor已经处理）
+
+        //2.校验库存是否充足（先使用内存标记 减少redis访问 同时避免redis库存出现负数）
+        boolean over = localOverMap.get(goodsId);
+        if(over){
+            return Result.error(CodeMsg.MIAO_SHA_OVER);
+        }
+        Long stockCount = redisService.dncr(GoodsKey.getMiaoshaGoodsStock, goodsId);
+        if(stockCount < 0){
+            localOverMap.put(goodsId, true);
+            return Result.error(CodeMsg.MIAO_SHA_OVER);
+        }
+
+        //3.判断是否已经秒杀过了
+        MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), goodsId);
+        if(order != null){
+            return Result.error(CodeMsg.REPEATE_MIAOSHA);
+        }
+
+        //4.请求入队rabbitMQ（0：排队中）
+        MiaoshaMessage msg = new MiaoshaMessage();
+        msg.setUser(user);
+        msg.setGoodsId(Long.parseLong(goodsId));
+        mqSender.miaoShaSend(msg);
+        return Result.success(0);
+    }
+```
+
+2.rabbitMQ出队
+```
+    /**
+     * DIRECT模式
+     * 秒杀数据出队
+     * 1.校验库存是否充足
+     * 2.判断是否已经秒杀过了
+     * 3.减库存 下订单 写入秒杀订单
+     * @param msg
+     */
+    @RabbitListener(queues = MQConfig.MIAOSHA_QUEUE)
+    public void miaoShaReceive(String msg){
+        log.info("----秒杀数据出队----MQReceiver.receive：" + msg);
+        MiaoshaMessage msMsg = JsonUtil.stringToBean(msg, MiaoshaMessage.class);
+        MiaoShaUser user = msMsg.getUser();
+        //1.校验库存是否充足
+        GoodsVo goods = goodsService.getGoodsVoByGoodsId(msMsg.getGoodsId() + "");
+        if(goods.getStockCount() <= 0){
+            return ;
+        }
+        //2.判断是否已经秒杀过了
+        MiaoshaOrder order = orderService.getMiaoshaOrderByUserIdGoodsId(user.getId(), msMsg.getGoodsId() + "");
+        if(order != null){
+            return ;
+        }
+        //3.减库存 下订单 写入秒杀订单
+        miaoShaService.miaosha(user, goods);
+    }
+```
+
+3.秒杀结果轮询接口
+```
+    /**
+     * 秒杀结果轮询
+     * 1 - 秒杀成功
+     * 0 - 秒杀排队中
+     * -1 - 秒杀失败
+     * @param model
+     * @return
+     */
+    @RequestMapping(value="/result", method=RequestMethod.GET)
+    @ResponseBody
+    public Result<Long> miaoshaResult(Model model,MiaoShaUser user,
+                                      @RequestParam("goodsId")long goodsId) {
+        model.addAttribute("user", user);
+        if(user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        long result  = miaoShaService.getMiaoshaResult(user.getId(), goodsId);
+        return Result.success(result);
+    }
+```
+
