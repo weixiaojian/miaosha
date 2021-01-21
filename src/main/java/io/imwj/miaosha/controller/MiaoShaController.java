@@ -14,16 +14,20 @@ import io.imwj.miaosha.result.Result;
 import io.imwj.miaosha.service.GoodsService;
 import io.imwj.miaosha.service.MiaoShaService;
 import io.imwj.miaosha.service.OrderService;
+import io.imwj.miaosha.util.MD5Util;
+import io.imwj.miaosha.util.UUIDUtil;
 import io.imwj.miaosha.vo.GoodsVo;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 
+import javax.imageio.ImageIO;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.awt.image.BufferedImage;
+import java.io.OutputStream;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -119,12 +123,19 @@ public class MiaoShaController implements InitializingBean {
      * @return
      */
     @ResponseBody
-    @RequestMapping("do_miaosha2")
+    @RequestMapping("/{path}/do_miaosha2")
     public Result<Integer> doMiaoSha2(Model model,
-                             MiaoShaUser user,
-                             String goodsId){
+                                      MiaoShaUser user,
+                                      String goodsId,
+                                      @PathVariable String path){
         model.addAttribute("user", user);
         //1.判断用户是否登陆（拦截器AuthInterceptor已经处理）
+
+        //1.1验证path
+        boolean check = miaoShaService.checkPath(user, goodsId, path);
+        if(!check){
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
 
         //2.校验库存是否充足（先使用内存标记 减少redis访问 同时避免redis库存出现负数）
         boolean over = localOverMap.get(goodsId);
@@ -208,5 +219,58 @@ public class MiaoShaController implements InitializingBean {
         }
         miaoShaService.reset(goodsList);
         return Result.success(true);
+    }
+
+
+    /**
+     * 获取秒杀路径
+     * @param request
+     * @param user
+     * @param goodsId
+     * @param verifyCode
+     * @return
+     */
+    @RequestMapping(value="/path", method=RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getMiaoshaPath(HttpServletRequest request, MiaoShaUser user,
+                                         @RequestParam("goodsId")long goodsId,
+                                         @RequestParam(value="verifyCode", defaultValue="0")int verifyCode) {
+
+        //校验验证码是否正确
+        boolean check = miaoShaService.checkVerifyCode(user, goodsId, verifyCode);
+        if(!check) {
+            return Result.error(CodeMsg.REQUEST_ILLEGAL);
+        }
+        //生成PathVariable参数
+        String pathVariable = MD5Util.MD5(UUIDUtil.uuid() + "abc");
+        redisService.set(MiaoshaKey.getMiaoshaPath, ""+user.getId() + "_"+ goodsId, pathVariable);
+        return Result.success(pathVariable);
+    }
+
+    /**
+     * 获取图片验证码
+     * @param response
+     * @param user
+     * @param goodsId
+     * @return
+     */
+    @RequestMapping(value="/verifyCode", method=RequestMethod.GET)
+    @ResponseBody
+    public Result<String> getMiaoshaVerifyCod(HttpServletResponse response, MiaoShaUser user,
+                                              @RequestParam("goodsId")long goodsId) {
+        if(user == null) {
+            return Result.error(CodeMsg.SESSION_ERROR);
+        }
+        try {
+            BufferedImage image  = miaoShaService.createVerifyCode(user, goodsId);
+            OutputStream out = response.getOutputStream();
+            ImageIO.write(image, "JPEG", out);
+            out.flush();
+            out.close();
+            return null;
+        }catch(Exception e) {
+            e.printStackTrace();
+            return Result.error(CodeMsg.MIAOSHA_FAIL);
+        }
     }
 }

@@ -16,6 +16,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
+ * 把前端传过来的token转换成User  赋值到controller方法中User参数
  * @author langao_q
  * @since 2020-11-25 18:22
  */

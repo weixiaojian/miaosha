@@ -616,3 +616,21 @@ public class MiaoShaController implements InitializingBean {
     }
 ```
 
+## 第七章- 图形验证码及恶意防刷
+### 隐藏秒杀地址
+* 接口改造，带上PathVariable参数  
+* 添加生成地址的接口（最后的秒杀地址为/PathVariable/do_miaosha）  
+* 秒杀收到请求，先验证PatheVariable参数   
+
+
+### 图形验证码  
+* 添加生成验证码的接口  
+* 在获取秒杀路径的时候，验证验证码  
+* ScriptEngine使用  
+
+### 接口限流防刷
+* 使用拦截器实现接口限流
+* ThreadLocal：根据线程绑定数据（线程安全）
+```
+ @AccessLimit(seconds=5, maxCount=5, needLogin=true)
+```

@@ -7,12 +7,24 @@ package io.imwj.miaosha.redis;
  */
 public class MiaoshaKey extends BasePrefix{
 
-    private MiaoshaKey(String prefix) {
-        super(prefix);
+
+
+    private MiaoshaKey(int expireSeconds, String prefix) {
+        super(expireSeconds, prefix);
     }
 
     /**
      * 标识商品是否秒杀完
      */
-    public static MiaoshaKey isGoodsOver = new MiaoshaKey("isGoodsOver");
+    public static MiaoshaKey isGoodsOver = new MiaoshaKey(0,"isGoodsOver");
+
+    /**
+     * 储存秒杀路径PathVariable参数
+     */
+    public static KeyPrefix getMiaoshaPath = new MiaoshaKey(60,"MiaoshaPath");
+
+    /**
+     * 储存图形验证码
+     */
+    public static KeyPrefix getMiaoshaVerifyCode = new MiaoshaKey(300,"MiaoshaVerifyCode");
 }

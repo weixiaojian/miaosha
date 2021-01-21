@@ -154,11 +154,11 @@ public class RedisService {
     private <T> String beanToString(T value) {
         if (value == null) {
             return null;
-        } else if (value == Integer.class) {
+        } else if (value.getClass() == Integer.class) {
             return "" + value;
-        } else if (value == String.class) {
+        } else if (value.getClass()  == String.class) {
             return (String) value;
-        } else if (value == Long.class) {
+        } else if (value.getClass()  == Long.class) {
             return "" + value;
         }else {
             return JSON.toJSONString(value);
