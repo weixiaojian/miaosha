@@ -629,7 +629,7 @@ public class MiaoShaController implements InitializingBean {
 * ScriptEngine使用  
 
 ### 接口限流防刷
-* 使用拦截器实现接口限流
+* 使用注解器实现接口限流
 * ThreadLocal：根据线程绑定数据（线程安全）
 ```
  @AccessLimit(seconds=5, maxCount=5, needLogin=true)

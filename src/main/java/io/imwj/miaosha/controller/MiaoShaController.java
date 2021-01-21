@@ -1,5 +1,6 @@
 package io.imwj.miaosha.controller;
 
+import io.imwj.miaosha.access.AccessLimit;
 import io.imwj.miaosha.domain.MiaoShaUser;
 import io.imwj.miaosha.domain.MiaoshaOrder;
 import io.imwj.miaosha.domain.OrderInfo;
@@ -230,6 +231,7 @@ public class MiaoShaController implements InitializingBean {
      * @param verifyCode
      * @return
      */
+    @AccessLimit(seconds=5, maxCount=5, needLogin=true)
     @RequestMapping(value="/path", method=RequestMethod.GET)
     @ResponseBody
     public Result<String> getMiaoshaPath(HttpServletRequest request, MiaoShaUser user,

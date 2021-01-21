@@ -36,7 +36,7 @@ public class AuthInterceptor implements HandlerInterceptor {
 
             String token = StringUtils.isNotEmpty(tokenParam)?tokenParam:tokenCookie;
 
-            //tokenParam为空时跳转到登陆页面
+            //为空时跳转到登陆页面
             if(StringUtils.isEmpty(tokenParam) && StringUtils.isEmpty(tokenCookie)) {
                 res.sendRedirect("/login/toLogin");
                 return false;

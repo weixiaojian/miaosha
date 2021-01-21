@@ -1,5 +1,6 @@
 package io.imwj.miaosha.config;
 
+import io.imwj.miaosha.access.AccessInterceptor;
 import io.imwj.miaosha.interceptor.AuthInterceptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
@@ -23,15 +24,21 @@ public class WebConfig extends WebMvcConfigurationSupport {
     @Autowired
     UserArgumentResolver userArgumentResolver;
 
+    @Autowired
+    AccessInterceptor accessInterceptor;
+
     /**
      * 校验Cookie或Request中token，为空或者token没有对应用户信息的就去登陆页面
      * @param registry
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        //登陆拦截器
         registry.addInterceptor(authInterceptor)
                 .addPathPatterns("/**")
                 .excludePathPatterns("/login/**", "/bootstrap/**", "/img/**", "/jquery-validation/**", "/js/**", "/layer/**");
+        //限流拦截器
+        registry.addInterceptor(accessInterceptor);
     }
 
     /**

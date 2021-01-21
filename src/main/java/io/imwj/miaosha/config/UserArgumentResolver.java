@@ -1,8 +1,8 @@
 package io.imwj.miaosha.config;
 
+import io.imwj.miaosha.access.UserContext;
 import io.imwj.miaosha.domain.MiaoShaUser;
 import io.imwj.miaosha.service.MiaoShaUserService;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.MethodParameter;
 import org.springframework.stereotype.Service;
@@ -13,7 +13,6 @@ import org.springframework.web.method.support.ModelAndViewContainer;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /**
  * 把前端传过来的token转换成User  赋值到controller方法中User参数
@@ -40,16 +39,7 @@ public class UserArgumentResolver implements HandlerMethodArgumentResolver {
     @Override
     public Object resolveArgument(MethodParameter methodParameter, ModelAndViewContainer modelAndViewContainer, NativeWebRequest nativeWebRequest, WebDataBinderFactory webDataBinderFactory) throws Exception {
         HttpServletRequest request = nativeWebRequest.getNativeRequest(HttpServletRequest.class);
-        HttpServletResponse response = nativeWebRequest.getNativeResponse(HttpServletResponse.class);
-        String tokenParam = request.getParameter("token");
-        String tokenCookie = getTokenCookie(request);
-        String token = StringUtils.isNotEmpty(tokenParam)?tokenParam:tokenCookie;
-
-        if(StringUtils.isEmpty(tokenParam) && StringUtils.isEmpty(tokenCookie)) {
-            return null;
-        }
-        MiaoShaUser user = userService.getByToken(response, token);
-        return user;
+        return  UserContext.get();
     }
 
     private String getTokenCookie(HttpServletRequest request) {
