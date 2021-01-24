@@ -132,6 +132,4 @@ public class AccessInterceptor  implements HandlerInterceptor {
         }
         return null;
     }
-
-
 }
